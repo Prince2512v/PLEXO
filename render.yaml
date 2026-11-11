@@ -1,0 +1,26 @@
+services:
+  # 1. Backend Express + Socket.IO Server
+  - type: web
+    name: load-balancer-backend
+    env: node
+    region: singapore
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && npm start
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+
+  # 2. Frontend React Static Site
+  - type: web
+    env: static
+    name: load-balancer-frontend
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/dist
+    envVars:
+      - key: VITE_SOCKET_URL
+        fromService:
+          type: web
+          name: load-balancer-backend
+          property: host
